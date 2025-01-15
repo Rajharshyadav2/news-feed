@@ -1,4 +1,3 @@
-
 import axios, { AxiosResponse } from "axios";
 import { format } from "date-fns";
 import { htmlToText } from "html-to-text";
@@ -26,7 +25,9 @@ interface GuardianResponse {
     }[];
     blocks: unknown;
   };
+  // }
 }
+
 const GAURDIAN_API = import.meta.env.VITE_GAURDIAN_API;
 const GAURDIAN_API_KEY = import.meta.env.VITE_GUARDIAN_API_KEY;
 
