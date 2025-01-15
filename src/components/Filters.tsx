@@ -1,0 +1,122 @@
+import { useState } from "react";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Category, Source } from "../types";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Calendar } from "../components/ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../components/ui/popover";
+
+/**
+ * ArticleFilters component allows users to apply filters such as date, category, and source to articles.
+ * The filters are applied using URL search parameters, and the component automatically closes after applying filters.
+ */
+export function ArticleFilters({ onClose }: { onClose?: () => void }) {
+  const [date, setDate] = useState<Date>();
+  const [category, setCategory] = useState("");
+  const [source, setSource] = useState("");
+  const navigate = useNavigate();
+
+  /**
+   * Handles the application of the selected filters, updates the URL with the new search parameters,
+   * and automatically closes the filter bar.
+   */
+  const handleApplyFilters = () => {
+    const params = new URLSearchParams(window.location.search);
+    if (date) params.set("date", format(date, "yyyy-MM-dd"));
+    else params.delete("date");
+    if (category) params.set("category", category);
+    else params.delete("category");
+    if (source) params.set("source", source);
+    else params.delete("source");
+
+    navigate(`/?${params.toString()}`);
+
+    // Always close the filter bar after applying filters
+    onClose?.();
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold mb-4 lg:mb-2">Filters</h2>
+      <div className="space-y-2 lg:space-y-1">
+        <label className="block text-sm font-medium lg:text-xs">Date</label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-left font-normal text-sm lg:text-xs lg:py-1"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4 lg:h-3 lg:w-3" />
+              {date ? format(date, "PP") : <span>Pick a date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="space-y-2 lg:space-y-1">
+        <label className="block text-sm font-medium lg:text-xs">Category</label>
+        <Select onValueChange={setCategory}>
+          <SelectTrigger className="lg:text-xs lg:py-1">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.values(Category).map((categoryValue) => (
+              <SelectItem key={categoryValue} value={categoryValue}>
+                {categoryValue}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-2 lg:space-y-1">
+        <label className="block text-sm font-medium lg:text-xs">Source</label>
+        <Select onValueChange={setSource}>
+          <SelectTrigger className="lg:text-xs lg:py-1">
+            <SelectValue placeholder="Select source" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.values(Source).map((sourceValue) => (
+              <SelectItem key={sourceValue} value={sourceValue}>
+                {sourceValue}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <Button
+        onClick={handleApplyFilters}
+        className="w-full lg:text-xs lg:py-1"
+      >
+        Apply Filters
+      </Button>
+      {onClose && (
+        <Button
+          onClick={onClose}
+          variant="outline"
+          className="w-full mt-4 lg:text-xs lg:py-1"
+        >
+          Close Filters
+        </Button>
+      )}
+    </div>
+  );
+}
